@@ -1,0 +1,20 @@
+name: Build Windows installer
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests libtorrent pyinstaller
+      - run: pyinstaller --noconsole --onefile --name SimpleDM --collect-all libtorrent app.py
+      - run: choco install innosetup -y
+      - run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SimpleDM-Setup
+          path: installer_out/SimpleDM-Setup.exe
